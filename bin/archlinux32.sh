@@ -27,7 +27,7 @@ repo_list=(
 )
 
 for dir in "${pool_list[@]}"; do
-	rclone copy -v --ignore-existing arch:$task/$dir/ flow:$task/$dir
+	rclone copy -v --http-no-head --ignore-existing arch:$task/$dir/ flow:$task/$dir
 done
 
 echo /$task/lastupdate > repo.list
