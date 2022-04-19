@@ -26,6 +26,8 @@ repo_list=(
 	testing
 )
 
+dumb.sh syncing $task 0 ${interval:=4h}
+
 for dir in "${pool_list[@]}"; do
 	rclone copy -v --http-no-head --ignore-existing arch:$task/$dir/ flow:$task/$dir
 done
@@ -43,3 +45,5 @@ done
 rclone copy -v --no-traverse --files-from=repo.list arch: flow:
 
 date +%s | rclone rcat flow:$task/lastsync
+
+dumb.sh success $task $(size.sh flow:$task)
