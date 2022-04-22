@@ -10,3 +10,13 @@ for dir in release proprietary staging-proprietary; do
 done
 
 dumb.sh success $task $(size.sh flow:$task)
+
+
+task=pop-iso
+
+dumb.sh syncing $task 0 ${interval}
+
+pop-iso.py > $task.list
+rclone copy $task: flow:$task -v --files-from $task.list --no-traverse --transfers=1 --stats-file-name-length=0 --ignore-existing
+
+dumb.sh success $task $(size.sh flow:$task)
