@@ -29,7 +29,7 @@ repo_list=(
 dumb.sh syncing $task 0 ${interval:=4h}
 
 for dir in "${pool_list[@]}"; do
-	rclone copy -v --http-no-head --ignore-existing arch:$task/$dir/ flow:$task/$dir
+	rclone copy arch:$task/$dir/ flow:$task/$dir -v --stats-file-name-length=0 --http-no-head --ignore-existing
 done
 
 echo /$task/lastupdate > repo.list
@@ -42,7 +42,7 @@ for ext in {db,files}.tar.gz{,.old}; do
 	echo /$task/x86_64/releng/releng.$ext >> repo.list
 done
 
-rclone copy -v --no-traverse --files-from=repo.list arch: flow:
+rclone copy arch: flow: -v --files-from=repo.list --no-traverse --transfers=1 --stats-file-name-length=0
 
 date +%s | rclone rcat flow:$task/lastsync
 
