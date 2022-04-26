@@ -12,6 +12,7 @@ def parse_release_page(release: str):
 
     headers = [""]
     rows = []
+    unique_files = {}
 
     for repo in release_page("h3"):
         if not repo.text:
@@ -35,18 +36,37 @@ def parse_release_page(release: str):
             arch_name = arch_name.lower()
             if arch_name not in headers:
                 headers.append(arch_name)
+                unique_files[arch_name] = {}
 
             url = url.rstrip("index.html")
             packages = repomd.load(site + url)
             columns[arch_name] = "{:,.2f} GiB ({:,})".format(
                 sum(p.package_size for p in packages) / (1 << 30),
                 len(packages))
+            for p in packages:
+                unique_files[arch_name][p.location] = p.package_size
 
         if not columns:
             continue
 
         columns[""] = repo_name
         rows.append(columns)
+
+    release_total = {
+        arch_name: "{:,.2f} GiB ({:,})".format(
+            sum(files.values()) / (1 << 30),
+            len(files))
+        for arch_name, files in unique_files.items()
+    }
+    unique_files = {
+        location: size
+        for arch_name, files in unique_files.items()
+        for location, size in files.items()
+    }
+    release_total[""] = "Total: {:,.2f} GiB ({:,})".format(
+        sum(unique_files.values()) / (1 << 30),
+        len(unique_files))
+    rows.insert(0, release_total)
 
     release_name = release_page("h1").text().strip()
     print_markdown(release_name, headers, rows)
