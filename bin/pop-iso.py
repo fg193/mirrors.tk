@@ -33,4 +33,5 @@ def list_bucket():
 
 if __name__ == "__main__":
     for obj in list_bucket():
+        print("#", obj.LastModified.timestamp(), obj.Size)
         print(obj.Key)
